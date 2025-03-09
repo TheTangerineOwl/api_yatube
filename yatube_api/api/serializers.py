@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     """Сериализатор для класса группы постов."""
 
-    group_title = serializers.CharField(source='title')
+    # group_title = serializers.CharField(source='title')
 
     class Meta:
         """Метаданные."""
@@ -40,14 +40,17 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         # fields = ('author', 'post', 'text', 'created')
         fields = '__all__'
-        read_only_fields = ('post', 'author', )
+        read_only_fields = ('author', 'post')
 
 
 class PostSerializer(serializers.ModelSerializer):
     """Сериализатор для класса постов в блоге."""
 
     author = serializers.StringRelatedField(read_only=True)
-    group = serializers.StringRelatedField()
+    # group = serializers.StringRelatedField()
+    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(),
+                                               required=False,
+                                               allow_null=True)
 
     class Meta:
         """Метаданные."""

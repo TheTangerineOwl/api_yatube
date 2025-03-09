@@ -1,6 +1,7 @@
 """Представления для классов группы, поста и комментариев."""
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
+from django.shortcuts import get_object_or_404
 
 from posts.models import Group, Post, Comment
 from .serializers import (CommentSerializer, PostSerializer,
@@ -49,14 +50,16 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Получения списка комментариев к заданному посту (GET-запрос)."""
         post_id = self.kwargs.get('post_id')
-        return Comment.objects.filter(post_id=post_id)
+        return Comment.objects.filter(post=post_id)
 
     def perform_create(self, serializer):
         """Создание комментария к заданному посту при POST-запросе."""
         if not self.request.user.is_authenticated:
             raise NotAuthenticated()
         post_id = self.kwargs.get('post_id')
-        serializer.save(author=self.request.user, post_id=post_id)
+        # post = Post.objects.get(pk=post_id)
+        post = get_object_or_404(Post, pk=post_id)
+        serializer.save(author=self.request.user, post=post)
 
     def perform_update(self, serializer):
         """Обновление заданного комментария при PUT- или PATCH-запросе."""
